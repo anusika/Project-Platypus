@@ -36,20 +36,19 @@ class SampleListener(Leap.Listener):
     def add_to_hand_actions(self, hands):
         hand_actions.append(hands)
 
-    def wait_for_steadiness(self, controller):
+    def wait_for_steadiness(self, controller, frames_to_wait):
+        while len(controller.frame().hands) != 2:
+            continue
         frame = controller.frame()
-        if len(frame.hands) != 2:
-            raise Error("Needs two hands")
         initial_positions = [frame.hands[0].palm_position, frame.hands[1].palm_position]
         last_id = frame.id
         
-        time_to_wait = 1 # (1000 ms = 1 s)
-        frames_to_wait = 100 * time_to_wait
         index = 1
 
         while(index < frames_to_wait):
             new_frame = controller.frame()
             if new_frame.id != last_id:
+                print(index)
                 last_id = new_frame.id
                 hands = new_frame.hands
                 if len(hands) != 2:
@@ -63,18 +62,24 @@ class SampleListener(Leap.Listener):
                     initial_positions = [hands[0].palm_position, hands[1].palm_position]
                     index = 1
                     continue
-                elif (abs(initial_positions[0][0] - hands[0].palm_position[0]) > STEADY_HANDS or
-                    abs(initial_position[0][1] - hands[0].palm_position[1]) > STEADY_HANDS or
-                    abs(initial_position[0][2] - hands[0].palm_position[2]) > STEADY_HANDS or
-                    abs(initial_position[1][0] - hands[1].palm_position[0]) > STEADY_HANDS or
-                    abs(initial_position[1][1] - hands[1].palm_position[1]) > STEADY_HANDS or
-                    abs(initial_position[1][2] - hands[1].palm_position[2]) > STEADY_HANDS):
+                elif (abs(initial_positions[0][0] - hands[0].palm_position[0]) > self.STEADY_HANDS or
+                    abs(initial_positions[0][1] - hands[0].palm_position[1]) > self.STEADY_HANDS or
+                    abs(initial_positions[0][2] - hands[0].palm_position[2]) > self.STEADY_HANDS or
+                    abs(initial_positions[1][0] - hands[1].palm_position[0]) > self.STEADY_HANDS or
+                    abs(initial_positions[1][1] - hands[1].palm_position[1]) > self.STEADY_HANDS or
+                    abs(initial_positions[1][2] - hands[1].palm_position[2]) > self.STEADY_HANDS):
                     # have to reset
                     initial_positions = [hands[0].palm_position, hands[1].palm_position]
                     index = 1
                 else:
                     index += 1
-        return
+            # print "Held steady!! :)"
+
+    def record(self, controller):
+        wait_for_steadiness(controller)
+        # steady, now start recording
+        recording = []
+
 
     def record(self):
         return
@@ -97,15 +102,15 @@ class SampleListener(Leap.Listener):
     def on_exit(self, controller):
         print "Exited"
 
-    def on_frame(self, controller):
+    # def on_frame(self, controller):
         # Get the most recent frame and report some basic information
-        frame = controller.frame()
+        # frame = controller.frame()
 
-        hands = frame.hands
-        if len(hands) != 2:
-            return
-        else:
-            add_to_hand_actions(hands)
+        # hands = frame.hands
+        # if len(hands) != 2:
+        #     return
+        # else:
+        #     add_to_hand_actions(hands)
         
         # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
         #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
@@ -156,7 +161,8 @@ def calibrate(self, frame):
                 [-hands[1].palm_position[0], -hands[1].palm_position[1], -hands[1].palm_position[2]]]]
 
 
-# def readSign(self):
+calibration = None
+
 
 def main():
     # Create a sample listener and controller
@@ -165,7 +171,7 @@ def main():
 
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
-
+    listener.wait_for_steadiness(controller, 150)
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
