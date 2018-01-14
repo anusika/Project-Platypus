@@ -20,10 +20,22 @@ def importFiles(path,filesList):
 #imports file and splits into array
 def importFile(filename,delimiter):
 	results = [];
+	print(filename)
 	inputfile = open(filename)
 	for line in inputfile:
-		results.append(line.strip(delimiter).split())
+		results.append(numpy.array(line.strip(delimiter).split()))
 	return results
+
+def buffer(result):
+	if len(result) < 136:
+		difference = 136-len(result)
+		difference_start = int(difference/2)
+		difference_end = difference -  difference_start
+		for x in range(difference_start):
+			result.insert(0, result[0])
+		for x in range(difference_end):
+			result.append(result[-1])
+	return result      
 
 def importAll():
 	filesList = []
@@ -31,12 +43,11 @@ def importAll():
 	results = []
 	outputValues = []
 	for file in range(0,len(filesList)):
-		print(filesList[file])
-		inputMatrix = importFile(filesList[file],"")
+		inputMatrix = buffer(importFile(filesList[file],""))
 		output = outputs(filesList[file])
-		results.append(inputMatrix) #2D array
-		outputValues.append(output)
-		print((str(output) + ' file: ' + filesList[file]))
+		results.append(numpy.hstack(numpy.array(inputMatrix))) #2D array
+		outputValues.append(numpy.array(output))
+	numpy.savez(".\etc\DataSet\pickledData\savedData.npz",features=results,labels=outputValues)
 	return results
 
 def getOutput():
@@ -48,7 +59,7 @@ def getOutput():
 				outputValues.append(1)
 			else:
 				outputValues.append(0)
-		return outputValues
+		return numpy.array(outputValues)
 	return placeOutput
 
 outputs = getOutput()
@@ -62,6 +73,5 @@ def findMaxFrames(signs):
 
 def main():
         signs = importAll()
-        maxFrames = findMaxFrames(signs)
-        return maxFrames
 
+main()
