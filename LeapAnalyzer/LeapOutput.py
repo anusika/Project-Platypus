@@ -9,8 +9,12 @@
 
 import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
+#Windows
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
+#Mac 
+lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
 sys.path.insert(0, lib_dir)
+sys.path.insert(0, lib_dir2)
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 

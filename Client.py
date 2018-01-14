@@ -7,6 +7,9 @@ import sys
 import tty
 import termios
 
+sys.path.append("./LeapAnalyzer")
+from LeapOutput import main
+
 TCP_IP = '127.0.0.1'
 TCP_PORT = 5005
 BUFFER_SIZE = 1024
@@ -47,6 +50,7 @@ get_ch()
 # once you finish recording 
 countDownFrom3()
 # get data and send it 
+main()
 
 s.send(MESSAGE)
 ## when you recieve something 
