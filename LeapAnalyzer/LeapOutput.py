@@ -135,7 +135,7 @@ class SampleListener(Leap.Listener):
     def on_exit(self, controller):
         print "Exited"
 
-    # def on_frame(self, controller):
+    def on_frame(self, controller):
         #Get the most recent frame and report some basic information
         frame = controller.frame()
 
@@ -218,7 +218,7 @@ def main():
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     recording = listener.record(controller)
-    print(recording)
+    # print(recording)
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
