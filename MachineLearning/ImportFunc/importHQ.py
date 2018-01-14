@@ -11,10 +11,23 @@ def importFiles(path,filesList):
 		else: 
 			importFiles(absPath,filesList)
 
-def importAll()
+def importAll():
 	filesList = []
 	importFiles('..\etc\DataSet\signHQ',filesList)
 	results = []
 	for file in range(0,len(filesList)):
 		results.append(iT.importFile(filesList[file],"")) #2D array
 	return results
+
+def findMaxFrames(signs):
+	maxFrames = 0
+	for i in range(0,len(signs)):
+		if len(signs[i]) > maxFrames:
+			maxFrames = len(signs[i])
+	return maxFrames
+
+def main():
+	signs = importAll()
+	print(findMaxFrames(signs))
+
+main()
