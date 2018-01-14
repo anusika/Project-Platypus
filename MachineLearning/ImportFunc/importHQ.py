@@ -26,8 +26,7 @@ def findMaxFrames(signs):
 			maxFrames = len(signs[i])
 	return maxFrames
 
-def main():
-	signs = importAll()
-	print(findMaxFrames(signs))
-
+def main(signs):
+	maxFrames = findMaxFrames(signs)
+	return maxFrames
 main()
