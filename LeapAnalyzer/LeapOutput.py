@@ -6,15 +6,15 @@
 # between Leap Motion and you, your company or other organization.             #
 ################################################################################
 
-
+from itertools import cycle
 import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 #Windows
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
 #Mac 
-lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
+# lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
 sys.path.insert(0, lib_dir)
-sys.path.insert(0, lib_dir2)
+# sys.path.insert(0, lib_dir2)
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
@@ -23,6 +23,30 @@ class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     state_names = ['STATE_INVALID', 'STATE_ START', 'STATE_UPDATE', 'STATE_END']
+
+    # Hands are steady if the movements don't vary by 50mm (5cm)
+    STEADY_HANDS = 150
+    
+    # Frame by frame of each hand and its movements
+    hand_actions = []
+
+    def clear_hand_actions(self):
+        hand_actions = []
+
+    def add_to_hand_actions(self, hands):
+        hand_actions.append(hands)
+
+    def wait_for_steadiness(self):
+        hand_actions = []
+        time_to_wait = 1 # (1000 ms = 1 s)
+        frames_to_wait = 100 * time_to_wait
+        index = 0
+        while(index < frames_to_wait):
+            index += 11
+        return
+
+    def record(self):
+        return
 
     def on_init(self, controller):
         print "Initialized"
@@ -46,44 +70,62 @@ class SampleListener(Leap.Listener):
         # Get the most recent frame and report some basic information
         frame = controller.frame()
 
-        print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
-              frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
+        hands = frame.hands
+        if len(hands) != 2:
+            return
+        else:
+            add_to_hand_actions(hands)
+        
+        # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
+        #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
 
-        # Get hands
-        for hand in frame.hands:
+        # # Get hands
+        # for hand in frame.hands:
 
-            handType = "Left hand" if hand.is_left else "Right hand"
+        #     handType = "Left hand" if hand.is_left else "Right hand"
 
-            print "  %s, id %d, position: %s" % (
-                handType, hand.id, hand.palm_position)
+        #     print "  %s, id %d, position: %s" % (
+        #         handType, hand.id, hand.palm_position)
 
-            # Get the hand's normal vector and direction
-            normal = hand.palm_normal
-            direction = hand.direction
+        #     # Get the hand's normal vector and direction
+        #     normal = hand.palm_normal
+        #     direction = hand.direction
 
-            # Calculate the hand's pitch, roll, and yaw angles
-            print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
-                direction.pitch * Leap.RAD_TO_DEG,
-                normal.roll * Leap.RAD_TO_DEG,
-                direction.yaw * Leap.RAD_TO_DEG)
+        #     # Calculate the hand's pitch, roll, and yaw angles
+        #     print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
+        #         direction.pitch * Leap.RAD_TO_DEG,
+        #         normal.roll * Leap.RAD_TO_DEG,
+        #         direction.yaw * Leap.RAD_TO_DEG)
 
-            # Get fingers
-            for finger in hand.fingers:
+        #     # Get fingers
+        #     for finger in hand.fingers:
 
-                print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
-                    self.finger_names[finger.type],
-                    finger.id,
-                    finger.length,
-                    finger.width)
+        #         print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
+        #             self.finger_names[finger.type],
+        #             finger.id,
+        #             finger.length,
+        #             finger.width)
 
-                # Get bones
-                for b in range(0, 4):
-                    bone = finger.bone(b)
-                    print "      Bone: %s, start: %s, end: %s, direction: %s" % (
-                        self.bone_names[bone.type],
-                        bone.prev_joint,
-                        bone.next_joint,
-                        bone.direction)
+        #         # Get bones
+        #         for b in range(0, 4):
+        #             bone = finger.bone(b)
+        #             print "      Bone: %s, start: %s, end: %s, direction: %s" % (
+        #                 self.bone_names[bone.type],
+        #                 bone.prev_joint,
+        #                 bone.next_joint,
+        #                 bone.direction)
+
+def calibrate(self, frame):
+    hands = frame.hands
+    # set (x,y,z) for both hands to (0,0,0)
+    if len(hand) != 2:
+        raise Error("Needs two hands")
+    else:
+        return [[-hands[0].palm_position[0], -hands[0].palm_position[1], -hands[0].palm_position[2],
+                [-hands[1].palm_position[0], -hands[1].palm_position[1], -hands[1].palm_position[2]]]]
+
+
+# def readSign(self):
 
 def main():
     # Create a sample listener and controller
