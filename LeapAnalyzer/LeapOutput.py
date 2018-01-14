@@ -35,9 +35,9 @@ class SampleListener(Leap.Listener):
 
     def pack(self, hand):
         ret = []
-        ret.append(hand.palm_position[0] * 0.001)
-        ret.append(hand.palm_position[1] * 0.001)
-        ret.append(hand.palm_position[2] * 0.001)
+        ret.append((calibration[0] + hand.palm_position[0]) * 0.001)
+        ret.append((calibration[1] + hand.palm_position[1]) * 0.001)
+        ret.append((calibration[2] + hand.palm_position[2]) * 0.001)
         ret.append(hand.palm_normal.roll * Leap.RAD_TO_DEG)
         if ret[len(ret) - 1] > 90:
             ret[len(ret) - 1] = 90
@@ -243,11 +243,12 @@ def calibrate(self, frame):
     if len(hand) != 2:
         raise Error("Needs two hands")
     else:
-        return [[-hands[0].palm_position[0], -hands[0].palm_position[1], -hands[0].palm_position[2],
+        global calibration
+        calibration = [[-hands[0].palm_position[0], -hands[0].palm_position[1], -hands[0].palm_position[2],
                 [-hands[1].palm_position[0], -hands[1].palm_position[1], -hands[1].palm_position[2]]]]
 
 
-calibration = None
+calibration = [0,0,0]
 
 
 def main():
