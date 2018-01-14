@@ -52,18 +52,44 @@ class SampleListener(Leap.Listener):
 
         ret.append(hand.direction.yaw * Leap.RAD_TO_DEG)
 
+        fingers = hand.fingers
         #Thumb, forefinger, middle, ring, little
-        ret.append(None)
-        ret.append(None)
-        ret.append(None)
-        ret.append(None)
-        ret.append(None)
+        # for finger in hand.fingers:
+                            
+        # proximal = finger.bone(1)
+        # distal = finger.bone(3)
+        # dot = proximal.direction.dot(distal.direction)
+        # flexed = 1.0 - (1.0 + dot) / 2.0
+        thumb = fingers.finger_type(Leap.Finger.TYPE_THUMB)[0]
+        thumb_flex_value = self.get_flex_value(thumb.bone(1), thumb.bone(3))
+        ret.append(thumb_flex_value) 
+
+        index = fingers.finger_type(Leap.Finger.TYPE_INDEX)[0]
+        index_flex_value = self.get_flex_value(index.bone(1), index.bone(3))
+        ret.append(index_flex_value)
+
+        middle = fingers.finger_type(Leap.Finger.TYPE_MIDDLE)[0]
+        middle_flex_value = self.get_flex_value(middle.bone(1), middle.bone(3))
+        ret.append(middle_flex_value)
+
+        ring = fingers.finger_type(Leap.Finger.TYPE_RING)[0]
+        ring_flex_value = self.get_flex_value(ring.bone(1), ring.bone(3))
+        ret.append(ring_flex_value)
+
+        pinky = fingers.finger_type(Leap.Finger.TYPE_PINKY)[0]
+        pinky_flex_value = self.get_flex_value(pinky.bone(1), pinky.bone(3))
+        ret.append(pinky_flex_value)
         return ret
+
+    def get_flex_value(self, proximal, distal):
+        dot = proximal.direction.dot(distal.direction)
+        flex_value = 1.0 - (1.0 + dot) / 2.0
+        return flex_value
 
     def wait_for_steadiness(self, controller, frames_to_wait):
         recording = []
         while len(controller.frame().hands) != 2:
-            print(len(controller.frame().hands))
+            # print(len(controller.frame().hands))
             continue
         frame = controller.frame()
         initial_positions = [frame.hands[0].palm_position, frame.hands[1].palm_position]
@@ -75,7 +101,7 @@ class SampleListener(Leap.Listener):
             time.sleep(0.01)
             new_frame = controller.frame()
             if new_frame.id != last_id:
-                print(index)
+                # print(index)
                 last_id = new_frame.id
                 hands = new_frame.hands
                 # L, then Right
@@ -119,13 +145,12 @@ class SampleListener(Leap.Listener):
         return self.resize_to_136(truncated_recording)
 
     def resize_to_136(self, frames):
-        length = len(frames)
         if len(frames) < 136:
             while len(frames) < 136:
                 frames.append(frames[-1:])
         else:
-            difference = length - 136
-            delete_every = int(math.floor(length / difference))
+            difference = len(frames) - 136
+            delete_every = int(math.floor(len(frames) / difference))
             index = delete_every
             while index < len(frames):
                 del frames[index]
@@ -155,7 +180,7 @@ class SampleListener(Leap.Listener):
     def on_exit(self, controller):
         print "Exited"
 
-    def on_frame(self, controller):
+    # def on_frame(self, controller):
         #Get the most recent frame and report some basic information
         frame = controller.frame()
 
@@ -234,7 +259,7 @@ def main():
     controller.add_listener(listener)
     recording = listener.record(controller)
     print(len(recording))
-    # print(recording)
+    print(recording)
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
