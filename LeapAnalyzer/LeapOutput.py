@@ -34,24 +34,30 @@ class SampleListener(Leap.Listener):
         hand_actions = []
 
     def pack(self, hand):
-        ret = {}
-        ret['x'] = hand.palm_position[0] * 0.001
-        ret['y'] = hand.palm_position[1] * 0.001
-        ret['z'] = hand.palm_position[2] * 0.001
-        ret['pitch'] = hand.direction.pitch * Leap.RAD_TO_DEG
-        if ret['pitch'] > 90:
-            ret['pitch'] = 90
-        elif ret['pitch'] < -90:
-            ret['pitch'] = -90
+        ret = []
+        ret.append(hand.palm_position[0] * 0.001)
+        ret.append(hand.palm_position[1] * 0.001)
+        ret.append(hand.palm_position[2] * 0.001)
+        ret.append(hand.palm_normal.roll * Leap.RAD_TO_DEG)
+        if ret[len(ret) - 1] > 90:
+            ret[len(ret) - 1] = 90
+        elif ret[len(ret) - 1] < -90:
+            ret[len(ret) - 1] = -90
 
-        ret['roll'] = hand.palm_normal.roll * Leap.RAD_TO_DEG
-        if ret['roll'] > 90:
-            ret['roll'] = 90
-        elif ret['pitch'] < -90:
-            ret['pitch'] = -90
+        ret.append(hand.direction.pitch * Leap.RAD_TO_DEG)
+        if ret[len(ret) - 1] > 90:
+            ret[len(ret) - 1] = 90
+        elif ret[len(ret) - 1] < -90:
+            ret[len(ret) - 1] = -90
 
-        ret['yaw'] = hand.direction.yaw * Leap.RAD_TO_DEG
-        ret['finger_bend'] = None
+        ret.append(hand.direction.yaw * Leap.RAD_TO_DEG)
+
+        #Thumb, forefinger, middle, ring, little
+        ret.append(None)
+        ret.append(None)
+        ret.append(None)
+        ret.append(None)
+        ret.append(None)
         return ret
 
     def wait_for_steadiness(self, controller, frames_to_wait):
@@ -74,11 +80,9 @@ class SampleListener(Leap.Listener):
                 hands = new_frame.hands
                 # L, then Right
                 if hands[0].is_left:
-                    recording.append(self.pack(hands[0]))
-                    recording.append(self.pack(hands[1]))
+                    recording.append(self.pack(hands[0]) + self.pack(hands[1]))
                 else:
-                    recording.append(self.pack(hands[1]))
-                    recording.append(self.pack(hands[0]))
+                    recording.append(self.pack(hands[1]) + self.pack(hands[0]))
 
                 if len(hands) != 2:
                     # have to reset
