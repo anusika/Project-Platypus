@@ -46,7 +46,6 @@ p.start()
 get_ch()
 # once you finish recording 
 countDownFrom3()
-
 # get data and send it 
 
 s.send(MESSAGE)
