@@ -10,15 +10,14 @@ from itertools import cycle
 import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 #Windows
-#lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
 
 #Mac 
-lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
-#sys.path.insert(0, lib_dir)
-sys.path.insert(0, lib_dir2)
+# lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
+sys.path.insert(0, lib_dir)
+# sys.path.insert(0, lib_dir2)
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
-
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
@@ -34,10 +33,31 @@ class SampleListener(Leap.Listener):
     def clear_hand_actions(self):
         hand_actions = []
 
+    def pack(self, hand):
+        ret = {}
+        ret['x'] = hand.palm_position[0] * 0.001
+        ret['y'] = hand.palm_position[1] * 0.001
+        ret['z'] = hand.palm_position[2] * 0.001
+        ret['pitch'] = hand.direction.pitch * Leap.RAD_TO_DEG
+        if ret['pitch'] > 90:
+            ret['pitch'] = 90
+        elif ret['pitch'] < -90:
+            ret['pitch'] = -90
+
+        ret['roll'] = hand.palm_normal.roll * Leap.RAD_TO_DEG
+        if ret['roll'] > 90:
+            ret['roll'] = 90
+        elif ret['pitch'] < -90:
+            ret['pitch'] = -90
+
+        ret['yaw'] = hand.direction.yaw * Leap.RAD_TO_DEG
+        ret['finger_bend'] = None
+        return ret
+
     def wait_for_steadiness(self, controller, frames_to_wait):
         recording = []
         while len(controller.frame().hands) != 2:
-            print(len(controller.frame().hands))
+            # print(len(controller.frame().hands))
             continue
         frame = controller.frame()
         initial_positions = [frame.hands[0].palm_position, frame.hands[1].palm_position]
@@ -46,12 +66,20 @@ class SampleListener(Leap.Listener):
         index = 1
 
         while(index < frames_to_wait):
+            time.sleep(0.01)
             new_frame = controller.frame()
             if new_frame.id != last_id:
-                print(index)
+                # print(index)
                 last_id = new_frame.id
                 hands = new_frame.hands
-                recording.append(hands)
+                # L, then Right
+                if hands[0].is_left:
+                    recording.append(self.pack(hands[0]))
+                    recording.append(self.pack(hands[1]))
+                else:
+                    recording.append(self.pack(hands[1]))
+                    recording.append(self.pack(hands[0]))
+
                 if len(hands) != 2:
                     # have to reset
                     recording = []
@@ -103,7 +131,7 @@ class SampleListener(Leap.Listener):
     def on_exit(self, controller):
         print "Exited"
 
-    def on_frame(self, controller):
+    # def on_frame(self, controller):
         #Get the most recent frame and report some basic information
         frame = controller.frame()
 
