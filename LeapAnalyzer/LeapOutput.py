@@ -155,66 +155,61 @@ class SampleListener(Leap.Listener):
         print "Exited"
 
     # def on_frame(self, controller):
-    #     #Get the most recent frame and report some basic information
-    #     frame = controller.frame()
+        # #Get the most recent frame and report some basic information
+        # frame = controller.frame()
 
-    #     hands = frame.hands
-    #     if len(hands) != 2:
-    #         return
+        # hands = frame.hands
+        # if len(hands) != 2:
+            # return
         
-    #     print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
-    #           frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
+        # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
+              # frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
 
-    #     # Get hands
-    #     for hand in frame.hands:
-    #         hand_x_basis = hand.basis.x_basis
-    #         hand_y_basis = hand.basis.y_basis
-    #         hand_z_basis = hand.basis.z_basis
-    #         hand_origin = hand.palm_position
+        # # Get hands
+        # for hand in frame.hands:
 
-    #         print "------ hand origin"
-    #         print hand_origin
-    #         print "---------"
+            # handType = "Left hand" if hand.is_left else "Right hand"
+	
+            # print "  %s, id %d, position: %s" % (
+                # handType, hand.id, hand.palm_position)
 
-    #         hand_transform = Leap.Matrix(hand_x_basis, hand_y_basis, hand_z_basis, hand_origin)
-    #         hand_transform = hand_transform.rigid_inverse()
+            # # Get the hand's normal vector and direction
+            # normal = hand.palm_normal
+            # direction = hand.direction
 
-    #         handType = "Left hand" if hand.is_left else "Right hand"
+            # # Calculate the hand's pitch, roll, and yaw angles
+            # print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
+                # direction.pitch * Leap.RAD_TO_DEG,
+                # normal.roll * Leap.RAD_TO_DEG,
+                # direction.yaw * Leap.RAD_TO_DEG)
 
-    #         print "  %s, id %d, position: %s" % (
-    #             handType, hand.id, hand.palm_position)
+            # # Get fingers
+            # for finger in hand.fingers:
+									
+				# proximal = finger.bone(1)
+				# distal = finger.bone(3)
+				# dot = proximal.direction.dot(distal.direction)
+				# flexed = 1.0 - (1.0 + dot) / 2.0
+				
+				# print " %s finger, flexed: %f" % (
+					# self.finger_names[finger.type],
+					# flexed)
+	
+	
+                # # print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
+                # #     self.finger_names[finger.type],
+                # #     finger.id,
+                # #     finger.length,
+                # #     finger.width)
 
-    #         # Get the hand's normal vector and direction
-    #         normal = hand.palm_normal
-    #         direction = hand.direction
-
-    #         # Calculate the hand's pitch, roll, and yaw angles
-    #         print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
-    #             direction.pitch * Leap.RAD_TO_DEG,
-    #             normal.roll * Leap.RAD_TO_DEG,
-    #             direction.yaw * Leap.RAD_TO_DEG)
-
-    #         # Get fingers
-    #         for finger in hand.fingers:
-    #             transformed_position = hand_transform.transform_point(finger.tip_position)
-    #             transformed_direction = hand_transform.transform_direction(finger.direction)
-
-    #             print "transformed position:"
-    #             print transformed_position
-    #             # print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
-    #             #     self.finger_names[finger.type],
-    #             #     finger.id,
-    #             #     finger.length,
-    #             #     finger.width)
-
-    #             # # Get bones
-    #             # for b in range(0, 4):
-    #             #     bone = finger.bone(b)
-    #             #     print "      Bone: %s, start: %s, end: %s, direction: %s" % (
-    #             #         self.bone_names[bone.type],
-    #             #         bone.prev_joint,
-    #             #         bone.next_joint,
-    #             #         bone.direction)
+                # # # Get bones
+                # # for b in range(0, 4):
+                # #     bone = finger.bone(b)
+                # #     print "      Bone: %s, start: %s, end: %s, direction: %s" % (
+                # #         self.bone_names[bone.type],
+                # #         bone.prev_joint,
+                # #         bone.next_joint,
+                # #         bone.direction)
 
 def calibrate(self, frame):
     hands = frame.hands
