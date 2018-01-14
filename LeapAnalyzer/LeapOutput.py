@@ -36,13 +36,44 @@ class SampleListener(Leap.Listener):
     def add_to_hand_actions(self, hands):
         hand_actions.append(hands)
 
-    def wait_for_steadiness(self):
-        hand_actions = []
+    def wait_for_steadiness(self, controller):
+        frame = controller.frame()
+        if len(frame.hands) != 2:
+            raise Error("Needs two hands")
+        initial_positions = [frame.hands[0].palm_position, frame.hands[1].palm_position]
+        last_id = frame.id
+        
         time_to_wait = 1 # (1000 ms = 1 s)
         frames_to_wait = 100 * time_to_wait
-        index = 0
+        index = 1
+
         while(index < frames_to_wait):
-            index += 11
+            new_frame = controller.frame()
+            if new_frame.id != last_id:
+                last_id = new_frame.id
+                hands = new_frame.hands
+                if len(hands) != 2:
+                    # have to reset
+                    initial_positions = None
+                    last_id = None
+                    index = 0
+                    continue
+                elif initial_positions == None:
+                    # means we reset earlier
+                    initial_positions = [hands[0].palm_position, hands[1].palm_position]
+                    index = 1
+                    continue
+                elif (abs(initial_positions[0][0] - hands[0].palm_position[0]) > STEADY_HANDS or
+                    abs(initial_position[0][1] - hands[0].palm_position[1]) > STEADY_HANDS or
+                    abs(initial_position[0][2] - hands[0].palm_position[2]) > STEADY_HANDS or
+                    abs(initial_position[1][0] - hands[1].palm_position[0]) > STEADY_HANDS or
+                    abs(initial_position[1][1] - hands[1].palm_position[1]) > STEADY_HANDS or
+                    abs(initial_position[1][2] - hands[1].palm_position[2]) > STEADY_HANDS):
+                    # have to reset
+                    initial_positions = [hands[0].palm_position, hands[1].palm_position]
+                    index = 1
+                else:
+                    index += 1
         return
 
     def record(self):
