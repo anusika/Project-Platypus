@@ -6,8 +6,11 @@
 # between Leap Motion and you, your company or other organization.             #
 ################################################################################
 
-import sys
-sys.path.insert(0, "C:\Users\Vivian\Documents\NWHacks2018\lib")
+
+import os, sys, inspect
+src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
+sys.path.insert(0, lib_dir)
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
