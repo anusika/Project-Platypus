@@ -1,5 +1,6 @@
 import numpy as numpy
 
+#imports file and splits into array
 def importFile(filename,delimiter):
 	results = [];
 	print(filename)
