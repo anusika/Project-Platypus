@@ -44,5 +44,3 @@ def main():
         maxFrames = findMaxFrames(signs)
         return maxFrames
 
-
-print(main())

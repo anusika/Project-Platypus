@@ -24,4 +24,4 @@ def buffer():
         return results        
 
 
-possible = buffer()
+buffer()
