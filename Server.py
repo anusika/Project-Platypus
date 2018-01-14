@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import socket
+import pickle
 
 TCP_IP = '127.0.0.1'
 TCP_PORT = 5005
@@ -18,6 +19,7 @@ while 1:
     #if not data: break
     if data: 
         # call the interpretator
+        capture = pickle.loads(data)
         print ('I have recieved something')
-        print ('received data:', data)
+        print ('received data:', capture)
     conn.send(data)  # echo
