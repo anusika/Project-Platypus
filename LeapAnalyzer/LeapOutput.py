@@ -25,7 +25,7 @@ class SampleListener(Leap.Listener):
     state_names = ['STATE_INVALID', 'STATE_ START', 'STATE_UPDATE', 'STATE_END']
 
     # Hands are steady if the movements don't vary by 50mm (5cm)
-    STEADY_HANDS = 150
+    STEADY_HANDS = 35
     
     # Frame by frame of each hand and its movements
     hand_actions = []
@@ -37,6 +37,7 @@ class SampleListener(Leap.Listener):
         hand_actions.append(hands)
 
     def wait_for_steadiness(self, controller, frames_to_wait):
+        recording = []
         while len(controller.frame().hands) != 2:
             continue
         frame = controller.frame()
@@ -51,8 +52,10 @@ class SampleListener(Leap.Listener):
                 print(index)
                 last_id = new_frame.id
                 hands = new_frame.hands
+                recording.append(hands)
                 if len(hands) != 2:
                     # have to reset
+                    recording = []
                     initial_positions = None
                     last_id = None
                     index = 0
@@ -70,19 +73,18 @@ class SampleListener(Leap.Listener):
                     abs(initial_positions[1][2] - hands[1].palm_position[2]) > self.STEADY_HANDS):
                     # have to reset
                     initial_positions = [hands[0].palm_position, hands[1].palm_position]
+                    if index > 10: # give some allowance/buffer for resetting the recording.
+                        recording = []
                     index = 1
                 else:
                     index += 1
-            # print "Held steady!! :)"
+        return recording
 
     def record(self, controller):
-        wait_for_steadiness(controller)
+        self.wait_for_steadiness(controller, 150)
         # steady, now start recording
-        recording = []
-
-
-    def record(self):
-        return
+        recording = self.wait_for_steadiness(controller, 150)
+        return recording[0:len(recording) - 150]
 
     def on_init(self, controller):
         print "Initialized"
@@ -171,7 +173,8 @@ def main():
 
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
-    listener.wait_for_steadiness(controller, 150)
+    recording = listener.record(controller)
+    print(recording)
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
