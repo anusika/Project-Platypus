@@ -40,9 +40,9 @@ class SampleListener(Leap.Listener):
         ret.append((calibration[2] + hand.palm_position[2]) * 0.001)
         ret.append(hand.palm_normal.roll * Leap.RAD_TO_DEG)
         if ret[len(ret) - 1] > 90:
-            ret[len(ret) - 1] = 90
+            ret[len(ret) - 1] = 90.0
         elif ret[len(ret) - 1] < -90:
-            ret[len(ret) - 1] = -90
+            ret[len(ret) - 1] = -90.0
 
         ret.append(hand.direction.pitch * Leap.RAD_TO_DEG)
         if ret[len(ret) - 1] > 90:
@@ -259,17 +259,18 @@ def main():
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     recording = listener.record(controller)
-    print(len(recording))
-    print(recording)
-    # Keep this process running until Enter is pressed
-    print "Press Enter to quit..."
-    try:
-        sys.stdin.readline()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        # Remove the sample listener when done
-        controller.remove_listener(listener)
+    # print(len(recording))
+    # return recording
+    # # Keep this process running until Enter is pressed
+    # print "Press Enter to quit..."
+    # try:
+    #     sys.stdin.readline()
+    # except KeyboardInterrupt:
+    #     pass
+    # finally:
+    #     # Remove the sample listener when done
+    controller.remove_listener(listener)
+    return recording
 
 
 if __name__ == "__main__":

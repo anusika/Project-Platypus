@@ -2,9 +2,9 @@
 import socket
 import pickle
 
-TCP_IP = '127.0.0.1'
+TCP_IP = '127.0.0.3'
 TCP_PORT = 5005
-BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
+BUFFER_SIZE = 100000  # Normally 1024, but we want fast response
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((TCP_IP, TCP_PORT))

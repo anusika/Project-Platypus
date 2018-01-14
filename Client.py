@@ -11,9 +11,9 @@ import pickle
 sys.path.append("./LeapAnalyzer")
 import LeapOutput 
 
-TCP_IP = '127.0.0.1'
+TCP_IP = '127.0.0.3'
 TCP_PORT = 5005
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 100000
 MESSAGE = "Hello, World!"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
@@ -49,13 +49,18 @@ p = mp.Process(target=worker)
 p.start()
 get_ch()
 # once you finish recording 
-#countDownFrom3()
+countDownFrom3()
 # get data and send it 
-#LeapOutput.main()
+recording = LeapOutput.main()
+print "Done recording, now need to pickle"
+print recording[0]
 
 ## pretent 
-test = [[1,2,3,4,5,6,7,8,9,10], [11,12,13,14,15]]
-s.send(pickle.dumps(test))
+# test = [[1,2,3,4,5,6,7,8,9,10], [11,12,13,14,15]]
+dumped = pickle.dumps(recording)
+print("Dumped size:")
+print(sys.getsizeof(dumped))
+s.send(dumped)
 ## when you recieve something 
 data = s.recv(BUFFER_SIZE)
 
