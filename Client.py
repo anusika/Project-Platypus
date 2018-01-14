@@ -20,7 +20,6 @@ s.connect((TCP_IP, TCP_PORT))
 
 print "Welcome to Project Platypus"
 print "---------------------------"
-print "Press any key to start recording"
 
 def get_ch():
         fd = sys.stdin.fileno()
@@ -45,13 +44,23 @@ def countDownFrom3():
     time.sleep(1)
     print "Recording...",
 
+def calibrate():
+    print "Calibrate. Please put your hands flat, palm down"
+    print "Hold hands horizontally and place fingertips against each other"
+    calibration = LeapOutput.calibrate()
+    print "??"
+    print calibration
+
+calibration = None
+calibrate()
+print "Press any key to start recording"
 p = mp.Process(target=worker)
 p.start()
 get_ch()
 # once you finish recording 
 countDownFrom3()
 # get data and send it 
-recording = LeapOutput.main()
+recording = LeapOutput.main(calibration)
 print "Done recording, now need to pickle"
 print recording[0]
 

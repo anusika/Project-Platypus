@@ -35,9 +35,13 @@ class SampleListener(Leap.Listener):
 
     def pack(self, hand):
         ret = []
-        ret.append((calibration[0] + hand.palm_position[0]) * 0.001)
-        ret.append((calibration[1] + hand.palm_position[1]) * 0.001)
-        ret.append((calibration[2] + hand.palm_position[2]) * 0.001)
+        if hand.is_left:
+            hand_index = 0
+        else:
+            hand_index = 1
+        ret.append((calibration[hand_index][0] + hand.palm_position[0]) * 0.001)
+        ret.append((calibration[hand_index][1] + hand.palm_position[1]) * 0.001)
+        ret.append((calibration[hand_index][2] + hand.palm_position[2]) * 0.001)
         ret.append(hand.palm_normal.roll * Leap.RAD_TO_DEG)
         if ret[len(ret) - 1] > 90:
             ret[len(ret) - 1] = 90.0
@@ -237,28 +241,59 @@ class SampleListener(Leap.Listener):
                 #         bone.next_joint,
                 #         bone.direction)
 
-def calibrate(self, frame):
-    hands = frame.hands
+def calibrate():
+
+    print "Calibrating in 3.."
+    time.sleep(1)
+    print "2.."
+    time.sleep(1)
+    print "1.."
+    time.sleep(1)
+    frame = cntrlr.frame()
+    hands = frame.hands    
+    print len(hands)
     # set (x,y,z) for both hands to (0,0,0)
-    if len(hand) != 2:
-        raise Error("Needs two hands")
+    if len(hands) != 2:
+        raise Exception("Needs two hands")
     else:
         global calibration
-        calibration = [[-hands[0].palm_position[0], -hands[0].palm_position[1], -hands[0].palm_position[2],
-                [-hands[1].palm_position[0], -hands[1].palm_position[1], -hands[1].palm_position[2]]]]
+        if hands[0].is_left:
+            left_hand = hands[0]
+            right_hand = hands[1]
+        else:
+            left_hand = hands[1]
+            right_hand = hands[0]
+        calibration = [[-left_hand.palm_position[0], -left_hand.palm_position[1], -left_hand.palm_position[2]],
+                [-right_hand.palm_position[0], -right_hand.palm_position[1], -right_hand.palm_position[2]]]
+        return calibration
 
 
 calibration = [0,0,0]
+cntrlr = Leap.Controller()
 
-
-def main():
+def main(calibration_value):
     # Create a sample listener and controller
     listener = SampleListener()
     controller = Leap.Controller()
+    cntrlr = controller
 
     # Have the sample listener receive events from the controller
-    controller.add_listener(listener)
-    recording = listener.record(controller)
+    cntrlr.add_listener(listener)
+    # if calibration_value == None:
+    #     print "Calibrating in 3.."
+    #     time.sleep(1)
+    #     print "2.."
+    #     time.sleep(1)
+    #     print "1.."
+    #     time.sleep(1)
+    #     calibrate(controller.frame())
+    #     return calibration
+    #     sys.exit(0)
+    # else:
+    recording = listener.record(cntrlr)
+    cntrlr.remove_listener(listener)
+    return recording
+    sys.exit(0)
     # print(len(recording))
     # return recording
     # # Keep this process running until Enter is pressed
@@ -269,8 +304,7 @@ def main():
     #     pass
     # finally:
     #     # Remove the sample listener when done
-    controller.remove_listener(listener)
-    return recording
+    
 
 
 if __name__ == "__main__":
