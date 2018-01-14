@@ -10,11 +10,12 @@ from itertools import cycle
 import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 #Windows
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
+#lib_dir = os.path.abspath(os.path.join(src_dir, '../lib_windows'))
+
 #Mac 
-# lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
-sys.path.insert(0, lib_dir)
-# sys.path.insert(0, lib_dir2)
+lib_dir2 = os.path.abspath(os.path.join(src_dir, '../lib_mac'))
+#sys.path.insert(0, lib_dir)
+sys.path.insert(0, lib_dir2)
 import Leap, sys, thread, time
 from Leap import CircleGesture, KeyTapGesture, ScreenTapGesture, SwipeGesture
 
@@ -33,12 +34,10 @@ class SampleListener(Leap.Listener):
     def clear_hand_actions(self):
         hand_actions = []
 
-    def add_to_hand_actions(self, hands):
-        hand_actions.append(hands)
-
     def wait_for_steadiness(self, controller, frames_to_wait):
         recording = []
         while len(controller.frame().hands) != 2:
+            print(len(controller.frame().hands))
             continue
         frame = controller.frame()
         initial_positions = [frame.hands[0].palm_position, frame.hands[1].palm_position]
@@ -104,54 +103,67 @@ class SampleListener(Leap.Listener):
     def on_exit(self, controller):
         print "Exited"
 
-    # def on_frame(self, controller):
-        # Get the most recent frame and report some basic information
-        # frame = controller.frame()
+    def on_frame(self, controller):
+        #Get the most recent frame and report some basic information
+        frame = controller.frame()
 
-        # hands = frame.hands
-        # if len(hands) != 2:
-        #     return
-        # else:
-        #     add_to_hand_actions(hands)
+        hands = frame.hands
+        if len(hands) != 2:
+            return
         
-        # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
-        #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
+        print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
+              frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
 
-        # # Get hands
-        # for hand in frame.hands:
+        # Get hands
+        for hand in frame.hands:
+            hand_x_basis = hand.basis.x_basis
+            hand_y_basis = hand.basis.y_basis
+            hand_z_basis = hand.basis.z_basis
+            hand_origin = hand.palm_position
 
-        #     handType = "Left hand" if hand.is_left else "Right hand"
+            print "------ hand origin"
+            print hand_origin
+            print "---------"
 
-        #     print "  %s, id %d, position: %s" % (
-        #         handType, hand.id, hand.palm_position)
+            hand_transform = Leap.Matrix(hand_x_basis, hand_y_basis, hand_z_basis, hand_origin)
+            hand_transform = hand_transform.rigid_inverse()
 
-        #     # Get the hand's normal vector and direction
-        #     normal = hand.palm_normal
-        #     direction = hand.direction
+            handType = "Left hand" if hand.is_left else "Right hand"
 
-        #     # Calculate the hand's pitch, roll, and yaw angles
-        #     print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
-        #         direction.pitch * Leap.RAD_TO_DEG,
-        #         normal.roll * Leap.RAD_TO_DEG,
-        #         direction.yaw * Leap.RAD_TO_DEG)
+            print "  %s, id %d, position: %s" % (
+                handType, hand.id, hand.palm_position)
 
-        #     # Get fingers
-        #     for finger in hand.fingers:
+            # Get the hand's normal vector and direction
+            normal = hand.palm_normal
+            direction = hand.direction
 
-        #         print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
-        #             self.finger_names[finger.type],
-        #             finger.id,
-        #             finger.length,
-        #             finger.width)
+            # Calculate the hand's pitch, roll, and yaw angles
+            print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
+                direction.pitch * Leap.RAD_TO_DEG,
+                normal.roll * Leap.RAD_TO_DEG,
+                direction.yaw * Leap.RAD_TO_DEG)
 
-        #         # Get bones
-        #         for b in range(0, 4):
-        #             bone = finger.bone(b)
-        #             print "      Bone: %s, start: %s, end: %s, direction: %s" % (
-        #                 self.bone_names[bone.type],
-        #                 bone.prev_joint,
-        #                 bone.next_joint,
-        #                 bone.direction)
+            # Get fingers
+            for finger in hand.fingers:
+                transformed_position = hand_transform.transform_point(finger.tip_position)
+                transformed_direction = hand_transform.transform_direction(finger.direction)
+
+                print "transformed position:"
+                print transformed_position
+                # print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
+                #     self.finger_names[finger.type],
+                #     finger.id,
+                #     finger.length,
+                #     finger.width)
+
+                # # Get bones
+                # for b in range(0, 4):
+                #     bone = finger.bone(b)
+                #     print "      Bone: %s, start: %s, end: %s, direction: %s" % (
+                #         self.bone_names[bone.type],
+                #         bone.prev_joint,
+                #         bone.next_joint,
+                #         bone.direction)
 
 def calibrate(self, frame):
     hands = frame.hands
